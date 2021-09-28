@@ -58,13 +58,13 @@ Shader "MatCap/Vertex/Textured Add"
 					// perform the blending operation in gamma space to get the same result in linear space
 					tex.rgb = LinearToGammaSpace(tex.rgb);
 					mc.rgb = LinearToGammaSpace(mc.rgb);
-					mc *= 2.0;
-					mc = saturate(tex + mc - 1.0);
+					mc *= 1.0;
+					mc = saturate(tex + mc);
 					mc.rgb = GammaToLinearSpace(mc.rgb);
 					UNITY_APPLY_FOG(i.fogCoord, mc);
 					return mc;
 			#else
-					mc.rgb = tex.rgb + (mc.rgb * 2.0) - 1.0;
+					mc.rgb = tex.rgb + (mc.rgb * 1.0);
 					UNITY_APPLY_FOG(i.fogCoord, mc);
 					return mc;
 			#endif
