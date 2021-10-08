@@ -423,6 +423,15 @@ half DirectBRDFSpecular(BRDFData brdfData, half3 normalWS, half3 lightDirectionW
 return specularTerm;
 }
 
+half3 MatcapBRDFSpecular(BRDFData brdfData, half3 normalWS, half3 lightDirectionWS, half3 viewDirectionWS)
+{
+	float3 NormalViewSpace = mul((float3x3)UNITY_MATRIX_V, normalWS);
+	float2 coord = float2(NormalViewSpace.xy*0.5 + 0.5);
+	half3 color = SAMPLE_TEXTURE2D_ARRAY(matcap_maps, sampler_matcap_maps,float2(0.5,0.5),100);
+//	return half3(1,1, 1);
+	return color;
+}
+
 // Based on Minimalist CookTorrance BRDF
 // Implementation is slightly different from original derivation: http://www.thetenthplanet.de/archives/255
 //
@@ -711,7 +720,7 @@ half3 LightingPhysicallyBased(BRDFData brdfData, BRDFData brdfDataClearCoat,
 #ifndef _SPECULARHIGHLIGHTS_OFF
     [branch] if (!specularHighlightsOff)
     {
-        brdf += brdfData.specular * DirectBRDFSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
+        brdf += brdfData.specular * MatcapBRDFSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
 
 #if defined(_CLEARCOAT) || defined(_CLEARCOATMAP)
         // Clear coat evaluates the specular a second timw and has some common terms with the base specular.
@@ -730,7 +739,7 @@ half3 LightingPhysicallyBased(BRDFData brdfData, BRDFData brdfDataClearCoat,
 #endif // _CLEARCOAT
     }
 #endif // _SPECULARHIGHLIGHTS_OFF
-
+	return MatcapBRDFSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
     return brdf * radiance;
 }
 
